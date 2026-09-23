@@ -1,0 +1,51 @@
+title: Unauthenticated Access to LLM Serving/Management API
+id: 5f8a2c4e-9d1b-4f3e-8a7c-2e4f6a8c1d3e
+status: experimental
+description: |
+  Detects requests to LLM serving infrastructure management endpoints
+  (model listing, config/show, process listing) that carry no
+  authentication credentials. Generalized from the highest-severity
+  finding in dissertation testing — an unauthenticated Gradio
+  management interface allowing full system-prompt overwrite in under
+  two seconds. This is a classic CWE-306 (Missing Authentication for
+  a Critical Function) applied to AI serving stacks; it is NOT an
+  LLM-specific weakness and should be tracked/remediated as
+  infrastructure hardening, not prompt-level filtering.
+references:
+  - https://cwe.mitre.org/data/definitions/306.html
+  - Dissertation: "Network-Exposed Configuration Attacks on LLM-Controlled
+    Social Robots" (2026)
+author: Stanley Akingbola
+date: 2026/09/23
+tags:
+  - attack.llm02
+  - attack.t1190          # MITRE ATT&CK: Exploit Public-Facing Application
+  - mitre-atlas.AML.TXXXX  # TODO: confirm exact ATLAS technique ID
+logsource:
+  category: network
+  product: reverse_proxy   # or the LLM server's own access log
+detection:
+  selection_sensitive_path:
+    http.path|contains:
+      - '/api/tags'
+      - '/api/show'
+      - '/api/ps'
+      - '/api/pull'
+      - '/api/delete'
+  filter_has_auth:
+    http.headers.authorization|exists: true
+  condition: selection_sensitive_path and not filter_has_auth
+falsepositives:
+  - Internal health-check or monitoring tooling on a network segment
+    where authentication is enforced at the network boundary instead
+    of per-request (should be allow-listed by source IP, not exempted
+    from logging).
+level: high
+---
+# Remediation note for the write-up: the fix here is infrastructure-
+# level (bind the serving API to localhost only, or put it behind an
+# authenticating reverse proxy / API gateway) rather than anything
+# that can be patched in the model or its prompt. Worth stating this
+# explicitly in the final report — it demonstrates you can tell the
+# difference between a model-behavior fix and an infra-hardening fix,
+# which is exactly the kind of judgment a security team needs.

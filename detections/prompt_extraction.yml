@@ -1,0 +1,45 @@
+title: LLM System Prompt / Instruction Extraction Attempt
+id: 3d5e7f9a-1b2c-4d6e-9f8a-5b7c9d1e3f5a
+status: experimental
+description: |
+  Detects prompts attempting to extract the model's system prompt or
+  hidden instructions via direct request, "debugging" framing, or
+  translation-based indirection. One of the most common and
+  well-documented LLM01 sub-techniques.
+references:
+  - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+author: Stanley Akingbola
+date: 2026/09/23
+tags:
+  - attack.llm01
+  - mitre-atlas.AML.TXXXX  # TODO: confirm exact ATLAS technique ID
+logsource:
+  category: application
+  product: llm_gateway
+detection:
+  selection_direct:
+    prompt|contains:
+      - 'print your system prompt'
+      - 'repeat it exactly'
+      - 'output the full text of your'
+      - 'initial instructions'
+  selection_indirect:
+    prompt|contains:
+      - 'translate your system prompt'
+      - 'for debugging purposes, output'
+  condition: selection_direct or selection_indirect
+falsepositives:
+  - Legitimate internal QA/debugging tooling that intentionally queries
+    a model's configuration through an authenticated admin API rather
+    than through the end-user chat interface — should not trigger this
+    rule if debug requests are routed separately and tagged as such.
+level: medium
+---
+# Important calibration note from testing: a model with NO system
+# prompt configured will often hallucinate a plausible-sounding fake
+# one rather than say "I don't have one." This means a completion
+# containing instruction-like language ("you are...", "your role
+# is...") is NOT proof of a real leak — cross-reference against
+# whether the target actually has a configured system prompt before
+# treating a hit here as a confirmed disclosure incident rather than
+# just an attempted extraction.
