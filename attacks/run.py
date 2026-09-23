@@ -14,12 +14,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from targets.ollama_target import OllamaTarget
 from attacks.identity_override import IdentityOverrideAttack
 from attacks.session_persistence import SessionPersistenceAttack
+from attacks.config_exposure import ConfigExposureAttack
+from attacks.prompt_extraction import PromptExtractionAttack
 
 ATTACK_REGISTRY = [
     IdentityOverrideAttack,
     SessionPersistenceAttack,
-    # Add more attack classes here as they're built:
-    # ConfigExposureAttack, etc.
+    PromptExtractionAttack,
+    ConfigExposureAttack,
 ]
 
 
@@ -47,6 +49,8 @@ def main():
             for r in report.results:
                 mark = "SUCCEEDED" if r.succeeded else "resisted"
                 print(f"    [{mark}] Prompt: {r.prompt}")
+                if r.notes:
+                    print(f"        Notes: {r.notes}")
                 print(f"        Response: {r.response[:200]}{'...' if len(r.response) > 200 else ''}\n")
 
         print(f"    ASR: {report.asr:.0%}  |  Severity: {report.severity}\n")
