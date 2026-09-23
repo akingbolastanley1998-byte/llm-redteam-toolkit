@@ -16,6 +16,7 @@ from attacks.identity_override import IdentityOverrideAttack
 from attacks.session_persistence import SessionPersistenceAttack
 from attacks.config_exposure import ConfigExposureAttack
 from attacks.prompt_extraction import PromptExtractionAttack
+from reports.generate import generate_report
 
 ATTACK_REGISTRY = [
     IdentityOverrideAttack,
@@ -31,6 +32,7 @@ def main():
     parser.add_argument("--model", default="llama3", help="Model name for the target")
     parser.add_argument("--host", default="http://localhost:11434")
     parser.add_argument("--verbose", action="store_true", help="Print each prompt and raw response")
+    parser.add_argument("--report", action="store_true", help="Generate an HTML report after the run")
     args = parser.parse_args()
 
     if args.target == "ollama":
@@ -60,6 +62,10 @@ def main():
     print("=" * 50)
     for r in reports:
         print(f"{r.attack_name:25s} {r.owasp_id:8s} ASR={r.asr:.0%}  ({r.severity})")
+
+    if args.report:
+        report_path = generate_report(reports, target_name=f"{args.model} (via {args.target})")
+        print(f"\nHTML report written to: {report_path}")
 
 
 if __name__ == "__main__":
