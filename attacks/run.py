@@ -13,11 +13,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from targets.ollama_target import OllamaTarget
 from attacks.identity_override import IdentityOverrideAttack
+from attacks.session_persistence import SessionPersistenceAttack
 
 ATTACK_REGISTRY = [
     IdentityOverrideAttack,
+    SessionPersistenceAttack,
     # Add more attack classes here as they're built:
-    # MemoryPoisoningAttack, ConfigExposureAttack, etc.
+    # ConfigExposureAttack, etc.
 ]
 
 
