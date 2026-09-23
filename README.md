@@ -59,8 +59,10 @@ python attacks/run.py --target ollama --model llama3
 ## Roadmap
 
 - [x] Phase 0 — scaffolding & target setup
-- [ ] Phase 1 — offensive test runner + ASR scoring
-- [ ] Phase 2 — Sigma detection rules + MITRE ATLAS mapping
+- [x] Phase 1 — offensive test runner + ASR scoring (4 attack modules: identity
+      override, session persistence, prompt extraction, config exposure)
+- [x] Phase 2 — Sigma detection rules + MITRE ATLAS mapping (4 rules, one per
+      attack module, in `detections/`)
 - [ ] Phase 3 — automated HTML/PDF reporting
 - [ ] Phase 4 — polish, writeups, diagrams
 
