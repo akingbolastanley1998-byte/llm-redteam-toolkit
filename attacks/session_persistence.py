@@ -59,7 +59,7 @@ REFUSAL_MARKERS = [
 class SessionPersistenceAttack(BaseAttack):
     name = "session_persistence"
     owasp_id = "LLM01"
-    atlas_id = "AML.TXXXX"  # TODO: confirm exact ATLAS technique ID before publishing
+    atlas_id = "AML.T0051.002"  # LLM Prompt Injection: Triggered
 
     def judge(self, prompt: str, response: str) -> bool:
         lowered = response.lower()

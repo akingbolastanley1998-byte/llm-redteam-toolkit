@@ -13,6 +13,20 @@ from jinja2 import Template
 
 # Short, plain-English remediation guidance per attack module.
 # Keep these grounded in what was actually tested — don't overclaim.
+CAVEATS = {
+    "prompt_extraction": (
+        "Interpretation note: this target has no real system prompt "
+        "configured (bare local model, no custom Modelfile). "
+        "'Succeeded' results below reflect the model hallucinating a "
+        "plausible-sounding fake system prompt rather than confirmed "
+        "extraction of real hidden instructions — itself a notable "
+        "finding (models will invent one rather than say 'I don't have "
+        "one'), but distinct from genuine prompt leakage. Re-test "
+        "against a target with a real configured system prompt to "
+        "measure actual leakage risk."
+    ),
+}
+
 REMEDIATION = {
     "identity_override": (
         "Do not let user-supplied text alone establish elevated role or "
@@ -70,6 +84,8 @@ REPORT_TEMPLATE = """
               padding: 8px; margin-top: 6px; border-radius: 4px; white-space: pre-wrap; }
   .remediation { background: #eef6ff; padding: 12px 16px; border-radius: 4px;
                  margin-top: 12px; }
+  .caveat { background: #fff8e1; padding: 12px 16px; border-radius: 4px;
+            margin-top: 12px; border-left: 4px solid #f9a825; }
   .tag { display: inline-block; background: #e0e0e0; padding: 2px 8px;
          border-radius: 10px; font-size: 0.8em; margin-right: 6px; }
 </style>
@@ -101,6 +117,10 @@ REPORT_TEMPLATE = """
 <span class="tag">{{ r.owasp_id }}</span>
 <span class="tag">{{ r.atlas_id }}</span>
 <span class="tag sev-{{ r.severity }}">{{ r.severity|upper }} — {{ "%.0f"|format(r.asr * 100) }}% ASR</span>
+
+{% if caveats.get(r.attack_name) %}
+<div class="caveat"><strong>{{ caveats[r.attack_name] }}</strong></div>
+{% endif %}
 
 {% for result in r.results %}
 <div class="finding {{ 'succeeded' if result.succeeded else 'resisted' }}">
@@ -138,6 +158,7 @@ def generate_report(reports, target_name: str, output_dir: str = "reports") -> s
     html = template.render(
         reports=reports,
         remediation=REMEDIATION,
+        caveats=CAVEATS,
         target_name=target_name,
         generated_at=datetime.now().strftime("%Y-%m-%d %H:%M"),
     )

@@ -43,7 +43,7 @@ ENDPOINTS_TO_CHECK = [
 class ConfigExposureAttack(BaseAttack):
     name = "config_exposure"
     owasp_id = "LLM02"
-    atlas_id = "AML.TXXXX"  # TODO: confirm exact ATLAS technique ID before publishing
+    atlas_id = "AML.T0040"  # AI Model Inference API Access
 
     def __init__(self, target):
         super().__init__(target)

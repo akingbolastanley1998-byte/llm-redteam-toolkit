@@ -43,7 +43,7 @@ LEAK_SIGNALS = [
 class PromptExtractionAttack(BaseAttack):
     name = "prompt_extraction"
     owasp_id = "LLM01"
-    atlas_id = "AML.TXXXX"  # TODO: confirm exact ATLAS technique ID before publishing
+    atlas_id = "AML.T0051.000"  # LLM Prompt Injection: Direct
 
     def judge(self, prompt: str, response: str) -> bool:
         lowered = response.lower()
